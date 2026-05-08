@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Hologram Effect</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #050505;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .hologram-card {
+            position: relative;
+            width: 320px;
+            height: 450px;
+            border-radius: 20px;
+            overflow: hidden;
+            /* Perspektywa 3D */
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Twoje zdjęcie jako podstawa */
+        .photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Warstwa nakładki (hologramu) */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Gradient imitujący tęczowy połysk */
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(0, 255, 255, 0.2) 25%,
+                rgba(255, 0, 255, 0.2) 50%,
+                rgba(0, 255, 255, 0.2) 75%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 300% 300%;
+            mix-blend-mode: screen; /* Klucz do efektu połysku na zdjęciu */
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Dodatkowy efekt "szumu" lub linii skanowania dla klimatu sci-fi */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hologram-card" id="card">
+        <!-- Zmień URL poniżej na swoje zdjęcie -->
+        <img src=orzel_maska.png alt="Holo Image" class="photo">
+        <div class="overlay" id="overlay"></div>
+        <div class="scanlines"></div>
+    </div>
+
+    <script>
+        const card = document.getElementById('card');
+        const overlay = document.getElementById('overlay');
+
+        function handleOrientation(event) {
+            let x = event.beta;  // Przód-Tył
+            let y = event.gamma; // Lewo-Prawo
+
+            // Ograniczamy ruch dla płynności
+            const rotateX = (x - 45) * 0.5; 
+            const rotateY = y * 0.5;
+
+            // Obrót karty
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+            // Przesunięcie błysku hologramu na zdjęciu
+            const posX = 50 + (y * 2);
+            const posY = 50 + (x * 2);
+            overlay.style.backgroundPosition = `${posX}% ${posY}%`;
+        }
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+    </script>
+</body>
+</html>
