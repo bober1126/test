@@ -6,6 +6,7 @@
     <title>Photo Hologram Effect</title>
     <style>
         body {
+            <button id="accelBtn" style="position:fixed; top:20px; z-index:100; padding:10px;">Włącz Hologram (Kliknij)</button>
             display: flex;
             justify-content: center;
             align-items: center;
@@ -86,29 +87,39 @@
     </div>
 
     <script>
-        const card = document.getElementById('card');
-        const overlay = document.getElementById('overlay');
+       const card = document.getElementById('card');
+const overlay = document.getElementById('overlay');
+const btn = document.getElementById('accelBtn');
 
-        function handleOrientation(event) {
-            let x = event.beta;  // Przód-Tył
-            let y = event.gamma; // Lewo-Prawo
+function handleOrientation(event) {
+    let x = event.beta; 
+    let y = event.gamma;
 
-            // Ograniczamy ruch dla płynności
-            const rotateX = (x - 45) * 0.5; 
-            const rotateY = y * 0.5;
+    const rotateX = (x - 45) * 0.5; 
+    const rotateY = y * 0.5;
 
-            // Obrót karty
-            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    overlay.style.backgroundPosition = `${50 + (y * 2)}% ${50 + (x * 2)}%`;
+}
 
-            // Przesunięcie błysku hologramu na zdjęciu
-            const posX = 50 + (y * 2);
-            const posY = 50 + (x * 2);
-            overlay.style.backgroundPosition = `${posX}% ${posY}%`;
-        }
+// Obsługa uprawnień dla iOS 13+
+btn.addEventListener('click', function() {
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then(permissionState => {
+                if (permissionState === 'granted') {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    btn.style.display = 'none'; // Ukryj przycisk po aktywacji
+                }
+            })
+            .catch(console.error);
+    } else {
+        // Dla urządzeń nie-iOS lub starszych wersji
+        window.addEventListener('deviceorientation', handleOrientation);
+        btn.style.display = 'none';
+    }
+});
 
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', handleOrientation);
-        }
     </script>
 </body>
 </html>
